@@ -1,0 +1,6 @@
+"0",""
+"0","# bmi"
+"0","ggplot(data = bmi_df,"
+"0","       mapping = aes(x = size,"
+"0","                     y = mean)) +"
+"0","  geom_point() "

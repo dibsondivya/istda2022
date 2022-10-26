@@ -1,0 +1,11 @@
+"0","```r
+# use na.omit or na.rm = TRUE
+
+mean(na.omit(nhanes20pl$Height)) # 168.7878
+mean(na.omit(nhanes20pl$BMI)) # 28.76804
+mean(na.omit(nhanes20pl$AlcoholYear)) # 75.69705
+
+sd(na.omit(nhanes20pl$Height)) # 10.08871
+sd(na.omit(nhanes20pl$BMI)) # 6.652364
+sd(na.omit(nhanes20pl$AlcoholYear)) # 103.5562
+```"

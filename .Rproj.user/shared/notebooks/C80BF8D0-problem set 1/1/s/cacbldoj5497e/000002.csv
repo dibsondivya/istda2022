@@ -1,0 +1,10 @@
+"0","```r
+fev1_estimate <- mean(data$fev1)
+fev1_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+fev1_se <- sd(data$fev1)/sqrt(length(data$fev1))
+fev1_lowerlimit <- fev1_estimate - 1.96*fev1_se
+fev1_lowerlimit
+fev1_upperlimit <- fev1_estimate + 1.96*fev1_se
+fev1_upperlimit
+```"

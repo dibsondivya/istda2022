@@ -1,0 +1,27 @@
+"0","```r
+# split datq
+maledata <- subset(x = data,
+       subset = sex == 1)
+femaledata <- subset(x = data,
+       subset = sex == 0)
+
+## male children
+height_male_estimate <- mean(maledata$height)
+height_male_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+height_male_se <- sd(maledata$height)/sqrt(length(maledata$height))
+height_male_lowerlimit <- height_male_estimate - 1.96*height_male_se
+height_male_lowerlimit
+height_male_upperlimit <- height_male_estimate + 1.96*height_male_se
+height_male_upperlimit
+
+## female children
+height_female_estimate <- mean(femaledata$height)
+height_female_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+height_female_se <- sd(femaledata$height)/sqrt(length(femaledata$height))
+height_female_lowerlimit <- height_female_estimate - 1.96*height_female_se
+height_female_lowerlimit
+height_female_upperlimit <- height_female_estimate + 1.96*height_female_se
+height_female_upperlimit
+```"

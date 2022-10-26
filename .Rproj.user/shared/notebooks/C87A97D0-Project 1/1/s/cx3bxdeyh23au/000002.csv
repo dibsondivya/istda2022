@@ -1,0 +1,5 @@
+"0","NHANES_Aim2 <- subset(NHANES_Inclusion, "
+"0","                      subset = Age<=75)"
+"2","Error in subset(NHANES_Inclusion, subset = Age <= 75) : 
+  object 'NHANES_Inclusion' not found
+"

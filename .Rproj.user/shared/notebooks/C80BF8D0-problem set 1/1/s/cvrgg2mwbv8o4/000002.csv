@@ -1,0 +1,12 @@
+"0","```r
+nrow(nhanes20pl)
+ncol(nhanes20pl)
+
+nhanes20pl_subset <- subset(NHANES,
+                            Age >= 20)
+# alternatives:
+  # NHANES[which(NHANES$Age >= 20), ]
+  # filter(NHANAES, Age >= 20)
+nrow(nhanes20pl_subset)
+ncol(nhanes20pl_subset)
+```"

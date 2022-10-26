@@ -1,0 +1,5 @@
+"0",""
+"0","df %>% mutate(ci_l = sample_mean - qnorm(0.975)*sample_se, # find lower limit"
+"0","              ci_u = sample_mean + qnorm(0.975)*sample_se, # find upper limit"
+"0","              ci_covers = ci_l < mu & ci_u > mu, # find if mu lies within interval"
+"0","              z = (sample_mean - mu) / sample_se ) # find z value"

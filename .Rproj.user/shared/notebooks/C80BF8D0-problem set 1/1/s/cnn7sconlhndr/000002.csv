@@ -1,0 +1,7 @@
+"0","```r
+plot(nhanes20pl$Gender, as.numeric(is.na(nhanes20pl$AgeMonths))) # relatively equal across both genders
+plot(nhanes20pl$Race1, as.numeric(is.na(nhanes20pl$AgeMonths))) # no age months for hispanic, white and others
+
+plot(nhanes20pl$Gender, as.numeric(is.na(nhanes20pl$Length))) # completely no recording
+plot(nhanes20pl$Race1, as.numeric(is.na(nhanes20pl$Length))) # completely no recording
+```"

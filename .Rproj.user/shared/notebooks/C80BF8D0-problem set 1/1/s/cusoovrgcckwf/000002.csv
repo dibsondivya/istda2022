@@ -1,0 +1,22 @@
+"0","```r
+# Physical Measurements
+sum(is.na(nhanes20pl$Weight))
+sum(is.na(nhanes20pl$Length)) # 7235
+sum(is.na(nhanes20pl$HeadCirc)) # 7235
+sum(is.na(nhanes20pl$Height))
+sum(is.na(nhanes20pl$BMI))
+sum(is.na(nhanes20pl$BMICatUnder20yrs)) # 7235
+sum(is.na(nhanes20pl$BMI_WHO))
+sum(is.na(nhanes20pl$Pulse))
+sum(is.na(nhanes20pl$BPSysAve))
+sum(is.na(nhanes20pl$BPDiaAve))
+sum(is.na(nhanes20pl$BPSys1)) # 519
+sum(is.na(nhanes20pl$BPDia1)) # 519
+sum(is.na(nhanes20pl$BPSys2)) 
+sum(is.na(nhanes20pl$BPDia2))
+sum(is.na(nhanes20pl$BPSys3))
+sum(is.na(nhanes20pl$BPDia3))
+sum(is.na(nhanes20pl$Testosterone))
+
+# proportion is 100%
+```"

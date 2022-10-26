@@ -1,0 +1,5 @@
+"0","```r
+hist(nhanes20pl$Height) # yes, seems normal
+hist(nhanes20pl$BMI) # skewed normal?
+hist(nhanes20pl$AlcoholYear) # not normal, inverse j shaped ## Prof's Logic: severe positive skew
+```"

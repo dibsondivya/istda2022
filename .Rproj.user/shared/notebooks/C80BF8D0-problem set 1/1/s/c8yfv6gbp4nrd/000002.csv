@@ -1,0 +1,26 @@
+"0","```r
+partii_data <- subset(data,
+                      subset = sex == 0)
+
+# H0: average height of girls in Lima =/= 123.5cm
+# H1: average height of girls in Lima = 123.5cm
+# perform a t test
+xbar <- mean(partii_data$height)
+xbar
+n <- length(partii_data$height)
+sd <- sd(partii_data$height)
+sd
+
+t_stat <- (xbar - 123.5)/(sd / sqrt(n))
+t_stat
+
+t.test(partii_data$height, 
+       mu = 123.5)
+
+# A small p-value (typically ≤ 0.05) indicates strong evidence against the null hypothesis, so you reject it.
+#A large p-value (> 0.05) indicates weak evidence against the null hypothesis, so you fail to reject it.
+
+# pvalue is p-value = 0.147, fail to reject H0 that average height is average height of girls in Lima =/= 123.5cm
+
+2*pnorm(t_stat, mean = 0, sd = 1, lower.tail = FALSE)
+```"

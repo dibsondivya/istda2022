@@ -1,0 +1,22 @@
+"0","```r
+# H0: average height of children aged 7-10 years <= 124cm.
+# H1: average height of children aged 7-10 years > 124cm.
+# perform a t test
+xbar <- mean(data$height)
+xbar
+n <- length(data$height)
+sd <- sd(data$height)
+sd
+
+t_stat <- (xbar - 124)/(sd / sqrt(n))
+t_stat
+
+t.test(data$height, 
+       alternative = \"greater\", 
+       mu = 124)
+
+# A small p-value (typically ≤ 0.05) indicates strong evidence against the null hypothesis, so you reject it.
+#A large p-value (> 0.05) indicates weak evidence against the null hypothesis, so you fail to reject it.
+
+# pvalue is p-value = 0.4152, fail to reject H0 that average height is less than equal to 124cm.
+```"

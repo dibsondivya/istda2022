@@ -1,0 +1,7 @@
+"0","```r
+plot(x = data$age,
+     y = data$height)
+cor(data$age, data$height, method = c(\"pearson\"))
+# correlation coefficient of 0.5946015
+  # weak positive r/s
+```"

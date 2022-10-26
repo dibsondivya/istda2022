@@ -1,0 +1,8 @@
+"0","# dnorm gives the density aka computes pdf"
+"0","  # returns the value of the probability density function for the normal distribution given parameters for x, mean and sd; P(X <= x)"
+"0","dnorm(x = ,"
+"0","      mean = ,"
+"0","      sd = )"
+"2","Error in dnorm(x = , mean = , sd = ) : 
+  argument ""x"" is missing, with no default
+"

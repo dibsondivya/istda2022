@@ -1,0 +1,6 @@
+"0","```r
+pnorm(10, 
+          mean(na.omit(nhanes20pl$AlcoholYear)), 
+          sd(na.omit(nhanes20pl$AlcoholYear)))
+# 0.2629067
+```"

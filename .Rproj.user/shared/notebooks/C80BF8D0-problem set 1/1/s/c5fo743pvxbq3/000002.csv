@@ -1,0 +1,28 @@
+"0","```r
+# split datq
+norespdata <- subset(x = data,
+       subset = respsymptoms == 0)
+respdata <- subset(x = data,
+       subset = respsymptoms == 1)
+
+## noresp children
+fev1_noresp_estimate <- mean(norespdata$fev1)
+fev1_noresp_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+fev1_noresp_se <- sd(norespdata$fev1)/sqrt(length(norespdata$fev1))
+fev1_noresp_lowerlimit <- fev1_noresp_estimate - 1.96*fev1_noresp_se
+fev1_noresp_lowerlimit
+fev1_noresp_upperlimit <- fev1_noresp_estimate + 1.96*fev1_noresp_se
+fev1_noresp_upperlimit
+
+## resp children
+fev1_resp_estimate <- mean(respdata$fev1)
+fev1_resp_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+fev1_resp_se <- sd(respdata$fev1)/sqrt(length(respdata$fev1))
+fev1_resp_lowerlimit <- fev1_resp_estimate - 1.96*fev1_resp_se
+fev1_resp_lowerlimit
+fev1_resp_upperlimit <- fev1_resp_estimate + 1.96*fev1_resp_se
+fev1_resp_upperlimit
+
+```"

@@ -1,0 +1,6 @@
+"0","```r
+#install.packages(\"NHANES\")
+library(NHANES)
+data(NHANES)
+head(NHANES)
+```"

@@ -1,0 +1,5 @@
+"0","nhanes20pl <- NHANES[NHANES$Age >= 20, ]"
+"0","  "
+"0","height <- nhanes20pl$Height[!is.na(nhanes20pl$Height)]"
+"0","bmi <- nhanes20pl$BMI[!is.na(nhanes20pl$BMI)]"
+"0","alcohol <- nhanes20pl$AlcoholYear[!is.na(nhanes20pl$AlcoholYear)]"

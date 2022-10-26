@@ -1,0 +1,13 @@
+"0","```r
+qnorm(p = 0.25,
+      mean = mean(na.omit(nhanes20pl$AlcoholYear)),
+      sd = sd(na.omit(nhanes20pl$AlcoholYear))
+      )
+
+qnorm(p = 0.75,
+      mean = mean(na.omit(nhanes20pl$AlcoholYear)),
+      sd = sd(na.omit(nhanes20pl$AlcoholYear))
+      )
+
+145.5446 - 5.849485 # 139.6951
+```"

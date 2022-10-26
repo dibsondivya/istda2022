@@ -1,0 +1,8 @@
+"0","```r
+# pnorm gives P(X <= x)
+1 - pnorm(30, 
+          mean(na.omit(nhanes20pl$BMI)), 
+          sd(na.omit(nhanes20pl$BMI)))
+
+# 0.4265396
+```"

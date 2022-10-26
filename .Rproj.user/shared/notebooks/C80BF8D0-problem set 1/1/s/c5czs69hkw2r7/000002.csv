@@ -1,0 +1,5 @@
+"0","```r
+# pnorm gives P(X <= x)
+1 - pnorm(165, mean(na.omit(nhanes20pl$Height)), sd(na.omit(nhanes20pl$Height)))
+# 0.6463375
+```"

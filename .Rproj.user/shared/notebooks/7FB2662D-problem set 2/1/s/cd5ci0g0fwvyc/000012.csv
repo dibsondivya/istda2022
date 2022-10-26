@@ -1,0 +1,7 @@
+"0",""
+"0","# alcohol"
+"0","ggplot(data = alcohol_df,"
+"0","       mapping = aes(x = size,"
+"0","                     y = mean)) +"
+"0","  geom_point() "
+"0",""

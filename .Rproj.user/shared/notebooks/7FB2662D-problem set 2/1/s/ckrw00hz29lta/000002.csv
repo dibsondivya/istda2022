@@ -1,0 +1,4 @@
+"0","library(NHANES)"
+"0","data(NHANES)"
+"0","nhanes_child <- subset(NHANES,"
+"0","                       AgeMonths < 120)"

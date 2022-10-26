@@ -1,0 +1,10 @@
+"0","```r
+# H0: pulmonary function of children with resp symptoms >= children with no resp symptons
+# H1: pulmonary function of children with resp symptoms < children with no resp symptons
+
+# use two sample t.test
+
+t.test(respdata$fev1, norespdata$fev1, var.equal=TRUE)
+# p value is 1.531e-07
+# strong evidence to reject null hypothesis of pulmonary function of children with resp symptoms >= children with no resp symptons
+```"

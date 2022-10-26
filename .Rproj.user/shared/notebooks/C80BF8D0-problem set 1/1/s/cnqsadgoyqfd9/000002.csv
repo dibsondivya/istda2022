@@ -1,0 +1,5 @@
+"0","```r
+
+# symmetrical and bell shaped: HealthGen
+hist(as.numeric(nhanes20pl$HealthGen))
+```"

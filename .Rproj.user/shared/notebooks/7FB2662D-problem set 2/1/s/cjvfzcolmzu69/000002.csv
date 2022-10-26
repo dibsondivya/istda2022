@@ -1,0 +1,4 @@
+"0","# Convert height into a categorical three groups: height below 120cm, between 120 to 130cm, and above 130cm via cut(x = , breaks = , labels = )"
+"0","data$height <- cut(data$height, "
+"0","                   breaks = c(-Inf, 120, 130, Inf), "
+"0","                   labels = c(""bel120"",""bet120130"",""above130""))"

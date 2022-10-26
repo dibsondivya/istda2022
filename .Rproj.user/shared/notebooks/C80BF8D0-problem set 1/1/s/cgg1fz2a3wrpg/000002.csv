@@ -1,0 +1,19 @@
+"0","```r
+# Demographic Variables
+sum(is.na(nhanes20pl$Gender))
+sum(is.na(nhanes20pl$Age))
+sum(is.na(nhanes20pl$AgeDecade))
+sum(is.na(nhanes20pl$AgeMonths)) # 3743; the most
+sum(is.na(nhanes20pl$Race1))
+sum(is.na(nhanes20pl$Race3)) # 3648
+sum(is.na(nhanes20pl$Education))
+sum(is.na(nhanes20pl$MaritalStatus))
+sum(is.na(nhanes20pl$HHIncome)) # 603
+sum(is.na(nhanes20pl$HHIncomeMid)) # 603
+sum(is.na(nhanes20pl$Poverty))
+sum(is.na(nhanes20pl$HomeRooms))
+sum(is.na(nhanes20pl$HomeOwn))
+
+proportion <- 2743/nrow(nhanes20pl)
+proportion # 0.3791292
+```"

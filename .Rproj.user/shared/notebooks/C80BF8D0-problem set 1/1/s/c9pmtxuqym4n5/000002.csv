@@ -1,0 +1,20 @@
+"0","```r
+height_estimate <- mean(data$height)
+height_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error where 1.96 is found via qnorm(0.975) and normal dist is used
+  #  qnorm(0.975)
+  # since 95% interval, the % are 2.5% and 97.5%. thus, 0.975 is used
+height_se <- sd(data$height)/sqrt(length(data$height))
+height_lowerlimit <- height_estimate - 1.96*height_se
+height_lowerlimit
+height_upperlimit <- height_estimate + 1.96*height_se
+height_upperlimit
+
+## Prof's Logic: small sample 95% CI: uses mean ± qt(0.975, df = df)*root(var/n) for the t distribution
+  # qt(0.975, df = df)
+
+
+## Prof's Logic: double check with t.test where t.test(data$height) and uses t distribution
+  # gives t stat, df, pvalue, and 95% CI and mean of x
+  # wont be using t.test for normal distribution but instead z.test function that is part of BSDA package
+```"

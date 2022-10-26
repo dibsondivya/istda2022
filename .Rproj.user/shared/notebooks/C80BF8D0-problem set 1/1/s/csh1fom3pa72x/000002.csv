@@ -1,0 +1,13 @@
+"0","```r
+# H0: there is no association between sex and height among children in Lima
+# H1: there is an association between sex and height among children in Lima
+
+# use a paired t test
+diff <- data$sex - data$height
+xbar_diff <- mean(diff)  # equivalent: xbar1 - xbar0
+se_diff <- sd(diff) / sqrt(nrow(data))
+
+t.test(data$sex, data$height, paired = TRUE)
+# p-value < 2.2e-16
+# strong evidence to reject null hypothesis of no association
+```"

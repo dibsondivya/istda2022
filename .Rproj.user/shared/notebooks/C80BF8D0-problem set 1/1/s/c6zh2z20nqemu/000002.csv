@@ -1,0 +1,30 @@
+"0","```r
+#str(nhanes20pl)
+
+# continuous: Poverty
+# discrete numeric: HomeRooms
+# binary:SleepTrouble
+# categorical: Race1
+# ordered categorical: AgeDecade
+
+#  appropriate summary of the frequency distribution and calculate an appropriate measure of central tendency and variation.
+hist(nhanes20pl$Poverty)
+mean(na.omit(nhanes20pl$Poverty)) # 2.944494
+sd(na.omit(nhanes20pl$Poverty)) # 1.665132
+
+hist(nhanes20pl$HomeRooms)
+mean(na.omit(nhanes20pl$HomeRooms)) # 6.142201
+sd(na.omit(nhanes20pl$HomeRooms)) # 2.260319
+
+hist(as.numeric(nhanes20pl$SleepTrouble))
+mean(na.omit(as.numeric(nhanes20pl$SleepTrouble))) # 1.263994
+sd(na.omit(as.numeric(nhanes20pl$SleepTrouble))) # 0.4408268
+
+hist(as.numeric(nhanes20pl$Race1))
+mean(na.omit(as.numeric(nhanes20pl$Race1))) # 3.537249
+sd(na.omit(as.numeric(nhanes20pl$Race1))) # 1.093671
+
+hist(as.numeric(nhanes20pl$AgeDecade))
+mean(na.omit(as.numeric(nhanes20pl$AgeDecade))) # 5.123587
+sd(na.omit(as.numeric(nhanes20pl$AgeDecade))) # 1.565809
+```"

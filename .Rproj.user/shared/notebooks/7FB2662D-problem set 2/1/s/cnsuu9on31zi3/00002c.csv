@@ -1,0 +1,8 @@
+"0","alcohol_df <- bmi_df <- height_df <- data.frame(size = c(5, 10, 25, 50, 100, 500),"
+"0","                        mean = 0,"
+"0","                        norm_lower_CI = 0,"
+"0","                        norm_upper_CI = 0,"
+"0","                        t_lower_CI = 0,"
+"0","                        t_upper_CI = 0"
+"0","                        )"
+"0","height_df"

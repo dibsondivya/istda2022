@@ -1,0 +1,26 @@
+"0","# assume recumbent length is a reasonably good approximation for height for children under age 2."
+"0",""
+"0","# create a single height variable that takes the variable Length for children under age 24 months and the variable Height for children age 24 to 119 months."
+"0","nhanes_child$singleheight <- ifelse(nhanes_child$AgeMonths < 24, "
+"0","                                    nhanes_child$Length, "
+"0","                                    nhanes_child$Height)"
+"0","nhanes_child %>% select(""AgeMonth"","
+"0","                       ""Length"","
+"0","                       ""Height"","
+"0","                       ""singleheight"") %>% arrange(""AgeMonth"")"
+"1","[1m[33mError[39m in [38;5;234m[38;5;235m[48;5;253m`select()`[49m[38;5;234m[39m:[22m
+[33m![39m Can't subset columns that don't exist.
+[31mx[39m Column `AgeMonth` doesn't exist.
+Backtrace:
+[90m  1. [39m... %>% arrange(""AgeMonth"")
+[90m  4. [39m[1mdplyr[22m:::select.data.frame(...)
+[90m  7. [39m[1mtidyselect[22m::eval_select(expr(c(...)), .data)
+[90m  8. [39mtidyselect:::eval_select_impl(...)
+[90m 16. [39mtidyselect:::vars_select_eval(...)
+     ...
+[90m 23. [39mtidyselect:::chr_as_locations(x, vars)
+[90m 24. [39m[1mvctrs[22m::vec_as_location(x, n = length(vars), names = vars)
+[90m 25. [39mvctrs `<fn>`()
+[90m 26. [39mvctrs:::stop_subscript_oob(...)
+[90m 27. [39mvctrs:::stop_subscript(...)
+"

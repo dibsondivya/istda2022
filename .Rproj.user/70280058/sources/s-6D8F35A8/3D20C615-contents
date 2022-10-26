@@ -1,0 +1,228 @@
+---
+title: "Project 1"
+author: "Divya Shridar"
+date: "10/17/2022"
+output: html_document
+---
+
+# Develop an Analysis Plan
+
+## Import dataset
+```{r Import dataset}
+library(NHANES)
+head(NHANES)
+nrow(NHANES)
+```
+
+## Exploratory Data Analysis
+```{r}
+colnames(NHANES)
+```
+
+```{r}
+sum(is.na(NHANES$TVHrsDay))
+sum(is.na(NHANES$CompHrsDay))
+sum(is.na(NHANES$DaysPhysHlthBad))
+prop.table(table(NHANES$DaysPhysHlthBad))
+2468/10000
+```
+
+```{r Race Proportions}
+prop.table(table(NHANES$Race1))
+```
+
+```{r}
+prop.table(table(NHANES$SexOrientation))
+```
+
+```{r}
+prop.table(table(NHANES$Poverty))
+library(ggplot2)
+ggplot(NHANES,
+       aes(x = Age,
+           y = BPSysAve,
+           color = PhysActive)) +
+  geom_point()
+
+# age, gender, outcomes, exposure variables
+# population demographics: urban? working? locations?
+  # age (continuous): median, IQR
+  # percentage for categories
+```
+
+```{r}
+ggplot(NHANES,
+       aes(x = Poverty,
+           y = BPSysAve,
+           color = Age)) +
+  geom_point()
+```
+
+```{r}
+ggplot(NHANES,
+       aes(x = PhysActive,
+           y = BPSysAve,
+           color = Gender)) +
+  geom_point(size = 0.5)
+```
+
+```{r}
+#table(NHANES$PregnantNow)
+NHANESPregnant <- subset(NHANES,
+       PregnantNow == 'Yes')
+ggplot(NHANESPregnant,
+       aes(x = BMI,
+           y = BPSysAve)) +
+  geom_point()
+```
+
+## Inclusion and Exclusion Criteria
+```{r Inclusion and Exclusion}
+# Adjust for inclusion and exclusion criteria
+NHANES_Inclusion <- subset(subset(NHANES,subset = Age >= 18), PregnantNow!='Yes' | is.na(PregnantNow)==TRUE)
+NHANES_Inclusion
+```
+## Aim 1: Two Sample T-test
+```{r Graphics}
+ggplot(data = NHANES_Inclusion,
+       mapping = aes(x = Poverty,
+                     y = ))
+```
+
+
+```{r Poverty using 1}
+NHANES_Poor <- subset(NHANES_Inclusion,
+                      subset = Poverty < 1)
+NHANES_Poor
+nrow(NHANES_Poor)
+
+NHANES_NotPoor <- subset(NHANES_Inclusion,
+                      subset = Poverty >= 1)
+nrow(NHANES_NotPoor)
+
+var(na.omit(NHANES_Poor$BPSysAve)) # 318.0218
+var(na.omit(NHANES_NotPoor$BPSysAve)) # 284.7876
+
+t.test(NHANES_Poor$BPSysAve, # var considered not equal
+       NHANES_NotPoor$BPSysAve)
+```
+
+
+```{r Socioeconomic Status}
+NHANES_Poor <- subset(NHANES_Inclusion,
+                      subset = Poverty < 2)
+NHANES_Poor
+nrow(NHANES_Poor)
+
+NHANES_NotPoor <- subset(NHANES_Inclusion,
+                      subset = Poverty >= 2)
+nrow(NHANES_NotPoor)
+
+var(na.omit(NHANES_Poor$BPSysAve)) # 318.0218
+var(na.omit(NHANES_NotPoor$BPSysAve)) # 284.7876
+
+t.test(NHANES_Poor$BPSysAve, # var considered not equal
+       NHANES_NotPoor$BPSysAve)
+```
+```{r Row Count}
+2567+4282
+```
+
+## Aim 2: Physical Activity on Blood Pressure
+### Apply inclusion and exclusion criteria
+```{r}
+NHANES_Aim2 <- subset(NHANES_Inclusion, 
+                      subset = Age<=75)
+nrow(NHANES_Aim2)
+```
+
+### Graphics of possible covariates
+
+```{r Age}
+ggplot(NHANES_Aim2,
+       aes(x = Age,
+           y = BPSysAve,
+           color = PhysActive)) +
+  geom_point()
+```
+
+```{r Gender}
+ggplot(NHANES_Aim2,
+       aes(x = PhysActive,
+           y = BPSysAve)) +
+  geom_point() +
+  geom_boxplot() +
+  facet_grid(cols = vars(Gender))
+```
+
+
+```{r BMI}
+ggplot(NHANES_Aim2,
+       aes(x = BMI,
+           y = BPSysAve,
+           color = PhysActive)) +
+  geom_point()
+```
+```{r Race1}
+ggplot(NHANES_Aim2,
+       aes(x = PhysActive,
+           y = BPSysAve)) +
+  geom_point() +
+  geom_boxplot() +
+  facet_grid(cols = vars(Race1))
+```
+
+```{r}
+ggplot(NHANES_Inclusion,
+       aes(x = Race1,
+           fill = PhysActive)) +
+  geom_bar(position = 'dodge')
+```
+
+
+```{r}
+ggplot(NHANES_Aim2,
+       aes(x = PhysActive,
+           y = BPSysAve)) +
+  geom_point() +
+  geom_boxplot() +
+  facet_grid(cols = vars(Education))
+```
+
+
+```{r}
+fit <- lm(BPSysAve ~ PhysActive, 
+          data = NHANES_Inclusion)
+summary(fit)
+
+# covariates: Age, Gender, Education, Race1, BMI_Cat, Depression
+    # TVHoursPerDay
+    # Alcohol
+    # Coomputer hours per day
+    # SleepTroubles
+
+# CI for estimates
+confint(fit)
+```
+```{r}
+plot(fit, 1:2)
+# consider a transformation
+```
+
+```{r}
+qqnorm(NHANES_Inclusion$BPSysAve, pch = 1, frame = FALSE)
+qqline(NHANES_Inclusion$BPSysAve, col = "steelblue", lwd = 2)
+```
+
+```{r}
+library(ggplot2)
+
+```
+
+```{r}
+library(corrplot)
+## corrplot 0.92 loaded
+M <- cor(NHANES_Aim2)
+corrplot(M, method = 'number')
+```
+

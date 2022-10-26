@@ -1,0 +1,9 @@
+"0","```r
+pnorm(30, 
+          mean(na.omit(nhanes20pl$BMI)), 
+          sd(na.omit(nhanes20pl$BMI))) - pnorm(25, 
+          mean(na.omit(nhanes20pl$BMI)), 
+          sd(na.omit(nhanes20pl$BMI)))
+
+# 0.2879067
+```"

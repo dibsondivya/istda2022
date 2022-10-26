@@ -1,0 +1,13 @@
+"0","```r
+nrow(nhanes20pl[nhanes20pl$Height>165,]) / nrow(nhanes20pl) # 0.6294402
+# good model
+
+nrow(nhanes20pl[nhanes20pl$BMI>30,]) / nrow(nhanes20pl) # 0.3642018
+nrow(nhanes20pl[nhanes20pl$BMI>25 & nhanes20pl$BMI<30,]) / nrow(nhanes20pl) # 0.3339323
+# slightly off
+
+nrow(nhanes20pl[nhanes20pl$AlcoholYear>100,]) / nrow(nhanes20pl) # 0.4427091
+nrow(nhanes20pl[nhanes20pl$AlcoholYear<10,]) / nrow(nhanes20pl) # 0.4768487
+IQR(na.omit(nhanes20pl$AlcoholYear)) # 101
+# normal distribution is not a good model for alcohol year
+```"

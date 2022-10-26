@@ -1,0 +1,7 @@
+"0","```r
+plot(x = data$sex,
+     y = data$respsymptoms)
+cor(data$sex, data$respsymptoms, method = c(\"pearson\"))
+# correlation coefficient of -0.0347108
+  # very very weak negative r/s, almost no association
+```"

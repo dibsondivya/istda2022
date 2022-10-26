@@ -1,0 +1,7 @@
+"0","maxrow <- nrow(nhanes_child)"
+"0",""
+"0","size10_df <- nhanes_child[sample.int(maxrow, 10, replace = TRUE), ]"
+"0","size25_df <- nhanes_child[sample.int(maxrow, 25, replace = TRUE), ]"
+"0","size50_df <- nhanes_child[sample.int(maxrow, 50, replace = TRUE), ]"
+"0","size100_df <- nhanes_child[sample.int(maxrow, 100, replace = TRUE), ]"
+"0","size500_df <- nhanes_child[sample.int(maxrow, 500, replace = TRUE), ]"

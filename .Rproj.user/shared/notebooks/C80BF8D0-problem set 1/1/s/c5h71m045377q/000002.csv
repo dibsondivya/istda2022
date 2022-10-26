@@ -1,0 +1,8 @@
+"0","```r
+qnorm(p = 0.9, 
+      mean = mean(na.omit(nhanes20pl$Height)),
+      sd = sd(na.omit(nhanes20pl$Height))
+)
+
+# 181.717cm
+```"

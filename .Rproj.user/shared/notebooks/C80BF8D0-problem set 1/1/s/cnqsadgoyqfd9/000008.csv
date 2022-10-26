@@ -1,0 +1,35 @@
+"0","```r
+mean(na.omit(as.numeric(nhanes20pl$Education))) # 3.64714
+```"
+"1","[1] 3.64714
+"
+"0","```r
+median(na.omit(as.numeric(nhanes20pl$Education))) # 4
+```"
+"1","[1] 4
+"
+"0","```r
+getmode(na.omit(as.numeric(nhanes20pl$Education))) # 4
+```"
+"1","[1] 4
+"
+"0","```r
+var(na.omit(as.numeric(nhanes20pl$Education))) # 1.43032
+```"
+"1","[1] 1.43032
+"
+"0","```r
+sd(na.omit(as.numeric(nhanes20pl$Education))) # 1.19596
+```"
+"1","[1] 1.19596
+"
+"0","```r
+range(na.omit(as.numeric(nhanes20pl$Education))) # 1 5
+```"
+"1","[1] 1 5
+"
+"0","```r
+IQR(na.omit(as.numeric(nhanes20pl$Education))) # 2
+```"
+"1","[1] 2
+"

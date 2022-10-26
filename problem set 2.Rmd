@@ -1,0 +1,539 @@
+---
+title: "problem set 2"
+author: "Divya Shridar"
+date: "10/19/2022"
+output: html_document
+---
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+install.packages("patchwork")
+library(patchwork)
+
+data <- read.csv("perulung_ems.csv")
+head(data)
+str(data)
+```
+
+
+# Part B
+## B1
+a. Calculate parameter estimates for a linear regression of the outcome FEV1 as a function of height, and the associated standard errors, t-statistics, and p-values using the formulas from Chapter 10 of Kirkwood and Sterne. Plot the fit of your model compared to the data. Check that your calculations agree with the outputs of the lm(...) function in R.
+```{r a}
+# self calculate:
+  # parameter estimates
+xbar <- mean(data$height)
+ybar <- mean(data$fev1)
+
+beta1_hat <- sum((data$height - xbar) * (data$fev1 - ybar)) / sum((data$height - xbar)^2) 
+print(c('beta1_hat', beta1_hat))
+
+beta0_hat <- ybar - beta1_hat * xbar
+print(c('beta0_hat', beta0_hat))
+
+  # associated se
+y_pred <- beta0_hat + beta1_hat * data$height 
+sigma_hat <- sqrt( sum((data$fev1 - y_pred)^2) / (nrow(data) - 2))
+
+se_beta1 <- sigma_hat / sqrt(sum((data$height - xbar)^2))
+print(c('se_beta1',se_beta1))
+
+se_beta0 <- sigma_hat * sqrt(1/nrow(data) + xbar^2 / sum((data$height - xbar)^2))
+print(c('se_beta0',se_beta0))
+
+  # t statistic
+t_stat <- beta1_hat/se_beta1
+print(c('t_stat',t_stat))
+
+
+  # p value
+pval <- 2*pt(t_stat, nrow(data)-2, lower.tail=FALSE)
+print(c('p value',pval))
+
+# plot fit of model
+ggplot(data,
+       aes(x = height,
+           y = fev1)) +
+  geom_point() +
+  geom_abline(slope = beta1_hat,
+              intercept = beta0_hat)
+
+# FEV1 (y) as a function of height (x)
+fit <- lm(fev1 ~ height,
+   data = data)
+summary(fit)
+  # everything looks good except p val?
+```
+
+b. Interpret the regression coefficients. State the null and alternative hypothesis that is being tested with the p-value reported for the height coefficient and your assessment of this hypothesis.
+```{r b}
+# regression coefficients
+
+# H0:
+# H1:
+
+# Since p value < 0.05, there is sufficient evidence to 
+```
+
+
+c. State and check the assumptions of your regression model—do each of them appear to be satsified?
+```{r c}
+# Assumptions of model include:
+  #
+  #
+  #
+  #
+
+# Check for assumption
+  
+```
+
+d. Convert height into a categorical three groups: height below 120cm, between 120 to 130cm, and above 130cm. Refit your regression model for FEV1 this time using the height categories as your predictor. Interpret the regression coefficient estimates. Hint: The function cut() will convert a numerical variable to a categorical variable.
+```{r d}
+# Convert height into a categorical three groups: height below 120cm, between 120 to 130cm, and above 130cm via cut(x = , breaks = , labels = )
+data$height <- cut(data$height, 
+                   breaks = c(-Inf, 120, 130, Inf), 
+                   labels = c("bel120","bet120130","above130"))
+```
+
+```{r d}
+# Refit your regression model for FEV1 this time using the height categories as your predictor.
+fit <- lm(fev1 ~ height,
+          data)
+summary(fit)
+
+# Interpret the regression coefficient estimates.
+  # intercept had an estimate of 1.37
+  # heightbet120130 had an estimate of 0.23921
+  # heightabove130 had an estimate of 0.58135
+  # larger change expected in fev1 for someone of height>130 than in between 120 and 130
+
+  # intercept as having a stronger r/s with fev1 ~ height than the other variables a
+```
+
+e. When analysing categorical predictors, it is often conventional to use the group with greatest frequency as the reference category (though there are other reasonable choices depending on the analysis). Change the reference category for your categorical height variable so that it is the group with the largest number of observations and refit your model. How do the parameter estimates change? What is the interpretation of the new parameters? Hint: The functions levels() and relevel() will be helpful.
+```{r}
+which.max(table(data$height))
+```
+
+```{r e}
+table(data$height) # between 120 and 130 has largest frequency
+
+# Change the reference category for your categorical height variable so that it is the group with the largest number of observations and refit your model.
+data$height <- relevel(data$height,
+        ref="bet120130")
+table(data$height)
+
+fit <- lm(fev1 ~ height,
+          data)
+summary(fit)
+
+# How do the parameter estimates change? What is the interpretation of the new parameters?
+  # now includes height below120 as well
+  # no longer includes heightbet120130
+
+  # new estimates  still have intercept as large as 1.60 but otherwise, there is both a positive and negative estimate
+  # those of height above 130 see a smaller increase in fev1
+  # those of height below 120 see a decrease in fev1
+```
+
+f. Amongst the models estimated in parts (a), (d), and (e), which do you prefer and why?
+```{r f}
+# (a) since it has a larger r squared value
+```
+
+g. Fit a linear regression model to test the null hypothesis that FEV1 is not associated with respiratory symptoms. What is your conclusions about this hypothesis? How do your effect estimates, statistical inference, and conclusions compare to what you estimated using the equal variance t-test last week?
+```{r g}
+# H0: fev1 has no association with respiratory symptoms
+# H1: fev1 has association with respiratory symptoms
+
+fit <- lm(fev1 ~ respsymptoms, 
+          data)
+summary(fit)
+
+# p-value: 1.531e-07
+# small p value; do not reject null hypothesis
+# no association with resp symptoms
+
+t.test(data$fev1, data$respsymptoms, var.equal = FALSE)
+  # var.equal = F?
+```
+
+## B2
+In this exercise we will use the NHANES dataset to study child growth by estimating the relationship between height in centimeters and age in months for children aged zero to 10 years (less than 120 months).
+
+Age in months is only reported for children of all ages in the 2009 to 2010 data. For 2011 and 2012, age in months is available only for children aged 0 to 2 years. This is fine for the purposes of our analysis; we will retain the subset of data for which age in months is recorded and below 120 months:
+```{r B2}
+library(NHANES)
+data(NHANES)
+nhanes_child <- subset(NHANES,
+                       AgeMonths < 120)
+```
+
+Height is measured in two different ways depending on the child age. 
+
+For children aged 2 and older, standing height is measured and recorded in the variable Height. 
+
+For children aged 0 to 3 years, recumbent length is measured and recorded in the variable Length.
+
+a. For children aged 24 to 47 months, both standing height (cm) and recumbent length (cm) were measured. Are standing height and recumbent length equivalent measures of height? Articulate, conduct, and report a hypothesis test to assess this question and report the estimated magnitude of any difference.
+```{r a}
+# nhanes_child %>% select("Length", "Height")
+
+# H0: mean standing height and recumbent length are equal
+# H1: mean standing height and mean recumbent length are not equal
+
+# exclusion criteria: those with NA in either of the columns
+sum(is.na(nhanes_child$Length)) # 416 NA
+sum(is.na(nhanes_child$Height)) # 274 NA
+
+hyp_data <- nhanes_child %>% filter(!is.na(Length) & !is.na(Height))
+
+t.test(hyp_data$Length, hyp_data$Height, paired = TRUE)
+# p-value < 2.2e-16
+  # cannot reject null hyp
+  # they are equal and thus equivalent measures of height
+
+# mean of the differences is 1.15431 
+```
+
+b. Proceed with your analysis assuming recumbent length is a reasonably good approximation for height for children under age 2. Create a single height variable that takes the variable Length for children under age 24 months and the variable Height for children age 24 to 119 months. Fit a linear regression model to estimate the relationship between age in months and height and give interpretations of both parameters. Hint: Try the function ifelse().
+```{r b}
+# assume recumbent length is a reasonably good approximation for height for children under age 2.
+
+# create a single height variable that takes the variable Length for children under age 24 months and the variable Height for children age 24 to 119 months.
+nhanes_child$singleheight <- ifelse(nhanes_child$AgeMonths < 24, 
+                                    nhanes_child$Length, 
+                                    nhanes_child$Height)
+# checking if worked
+#nhanes_child %>% select("AgeMonths",
+#                       "Length",
+#                       "Height",
+#                       "singleheight") %>% arrange(AgeMonths)
+
+# Fit a linear regression model to estimate the relationship between age in months and height and give interpretations of both parameters.
+fit <- lm(AgeMonths ~ singleheight,
+          nhanes_child)
+summary(fit)
+  # beta0 hat of -95.43
+  # beta1 hat of 1.44
+```
+
+c. Check the assumptions of your regression model fitted in part (b). Do any of the assumptions appear to be violated?
+```{r c}
+
+```
+
+# Part C
+## C1: Distribution of the sample mean and confidence intervals. 
+
+This exercise will use the NHANES dataset as ‘true’ population from which to simulate samples and study the properties of the sample mean as an estimator of the population mean. As with last week, we will only consider the subset of the sample who are adults aged 20 years and older. 
+
+First, lets revisit the the three variables used in question B3 from last weeks problem set:
+• Height: Standing height in centimeters.
+• BMI: Body Mass Index
+• AlcoholYear: Number of days over the past year that participant drank alcoholic beverages 
+
+Next, create a vector of responses removing any NA values.
+```{r C1}
+nhanes20pl <- NHANES[NHANES$Age >= 20, ]
+  
+height <- nhanes20pl$Height[!is.na(nhanes20pl$Height)]
+bmi <- nhanes20pl$BMI[!is.na(nhanes20pl$BMI)]
+alcohol <- nhanes20pl$AlcoholYear[!is.na(nhanes20pl$AlcoholYear)]
+```
+
+Do the following steps for each variable:
+
+a. Simulate a large number of samples with replacement of size 5, 10, 25, 50, 100, and 500. See the function ?sample. (The function ?replicate might also be helpful for simulating a large number of samples.)
+
+```{r a}
+alcohol_df <- bmi_df <- height_df <- data.frame(size = c(5, 10, 25, 50, 100, 500),
+                        mean = 0,
+                        norm_lower_CI = 0,
+                        norm_upper_CI = 0,
+                        t_lower_CI = 0,
+                        t_upper_CI = 0
+                        )
+height_df
+```
+
+```{r a}
+sizes <- c(5, 10, 25, 50, 100, 500)
+
+# height
+height_sample <- list()
+for (i in sizes){
+  height_sample <- append(height_sample, list(sample(height,
+       size = i,
+       replace = TRUE)))
+}
+height_sample
+
+# bmi
+bmi_sample <- list()
+for (i in sizes){
+  bmi_sample <- append(bmi_sample, list(sample(bmi,
+       size = i,
+       replace = TRUE)))
+}
+
+# alcohol
+alcohol_sample <- list()
+for (i in sizes){
+  alcohol_sample <- append(alcohol_sample, list(sample(alcohol,
+       size = i,
+       replace = TRUE)))
+}
+
+```
+
+b. For each sample, calculate the sample mean, the large-sample 95% CI using the normal distribution, and the small-sample 95% CI using the t-distribution. (The function ?apply might be useful.)
+```{r b}
+# height
+rownum <- 1
+for (i in height_sample){
+  estimate <- mean(i)
+  se <- sd(i)/sqrt(length(i))
+  norm_lowerlimit <- estimate - qnorm(0.975)*se
+  norm_upperlimit <- estimate + qnorm(0.975)*se
+  t_lowerlimit <- estimate - qt(0.975, df = length(i)-2)*se
+  t_upperlimit <- estimate + qt(0.975, df = length(i)-2)*se
+  
+  height_df[rownum,2] <- estimate
+  height_df[rownum,3] <- norm_lowerlimit
+  height_df[rownum,4] <- norm_upperlimit
+  height_df[rownum,5] <- t_lowerlimit
+  height_df[rownum,6] <- t_upperlimit
+
+  rownum <- rownum+1
+}
+
+height_df
+
+# bmi
+rownum <- 1
+for (i in bmi_sample){
+  estimate <- mean(i)
+  se <- sd(i)/sqrt(length(i))
+  norm_lowerlimit <- estimate - qnorm(0.975)*se
+  norm_upperlimit <- estimate + qnorm(0.975)*se
+  t_lowerlimit <- estimate - qt(0.975, df = length(i)-2)*se
+  t_upperlimit <- estimate + qt(0.975, df = length(i)-2)*se
+  
+  bmi_df[rownum,2] <- estimate
+  bmi_df[rownum,3] <- norm_lowerlimit
+  bmi_df[rownum,4] <- norm_upperlimit
+  bmi_df[rownum,5] <- t_lowerlimit
+  bmi_df[rownum,6] <- t_upperlimit
+
+  rownum <- rownum+1
+}
+bmi_df
+
+# alcohol
+rownum <- 1
+for (i in alcohol_sample){
+  estimate <- mean(i)
+  se <- sd(i)/sqrt(length(i))
+  norm_lowerlimit <- estimate - qnorm(0.975)*se
+  norm_upperlimit <- estimate + qnorm(0.975)*se
+  t_lowerlimit <- estimate - qt(0.975, df = length(i)-2)*se
+  t_upperlimit <- estimate + qt(0.975, df = length(i)-2)*se
+  
+  alcohol_df[rownum,2] <- estimate
+  alcohol_df[rownum,3] <- norm_lowerlimit
+  alcohol_df[rownum,4] <- norm_upperlimit
+  alcohol_df[rownum,5] <- t_lowerlimit
+  alcohol_df[rownum,6] <- t_upperlimit
+
+  rownum <- rownum+1
+}
+alcohol_df
+```
+
+
+c. Plot the distribution of the sample mean for each of the increasing sample size. What do you notice about the distribution of the sample mean with increasing sample size for each variable?
+```{r c}
+# height
+ggplot(data = height_df,
+       mapping = aes(x = size,
+                     y = mean)) +
+  geom_point() # decreases as size increases
+
+# bmi
+ggplot(data = bmi_df,
+       mapping = aes(x = size,
+                     y = mean)) +
+  geom_point() # decreases as size increases
+
+# alcohol
+ggplot(data = alcohol_df,
+       mapping = aes(x = size,
+                     y = mean)) +
+  geom_point() # increases as size increases
+
+```
+
+d. Calculate the coverage of the 95% confidence intervals by calculating for what proportion of samples the 95% confidence interval contains the true population means (calculated in exercise B2 (b) in problem set 1, last week:
+```{r d}
+# calculate what proportion of samples that the 95% confidence interval contains the true mean and sd
+totalsampleno <- length(sizes) #6
+
+# Create a figure to visually summarise the analysis of 95% CI coverage at different sample sizes, for the large-sample and small-sample CI, and for different variables.
+
+height_truemean <- 168.8
+height_truesd <- 10.1
+height_df <- height_df %>% mutate(
+  norm_check = ifelse(norm_lower_CI < height_truemean & 
+                                  height_truemean < norm_upper_CI,
+                                1,
+                                0),
+  t_check = ifelse(t_lower_CI < height_truemean & 
+                                  height_truemean < t_upper_CI,
+                                1,
+                                0)
+)
+height_df
+
+bmi_truemean <- 28.8
+bmi_truesd <- 6.7
+bmi_df <- bmi_df %>% mutate(
+  norm_check = ifelse(norm_lower_CI < bmi_truemean & 
+                                  bmi_truemean < norm_upper_CI,
+                                1,
+                                0),
+  t_check = ifelse(t_lower_CI < bmi_truemean & 
+                                  bmi_truemean < t_upper_CI,
+                                1,
+                                0)
+)
+bmi_df
+
+
+alcohol_truemean <- 75.7
+alcohol_truesd <- 103.6
+alcohol_df <- alcohol_df %>% mutate(
+  norm_check = ifelse(norm_lower_CI < alcohol_truemean & 
+                                  alcohol_truemean < norm_upper_CI,
+                                1,
+                                0),
+  t_check = ifelse(t_lower_CI < alcohol_truemean & 
+                                  alcohol_truemean < t_upper_CI,
+                                1,
+                                0)
+)
+alcohol_df 
+```
+
+i. How do the coverage of the large-sample CI (using normal distribution) and small-sample CI (using t-distribution) compare at different sample sizes?
+```{r di}
+# small sample CI is broader than large sample CI
+```
+
+ii. For a given sample size, how does the coverage compare for each of the three variables? Can you relate this to your findings in exercise B3 (d) from week 1?
+```{r dii}
+# For height and bmi, large and small sample CI coverage is comparable but for alcohol, small sample CI sees more coverage than large sample CI.
+```
+
+
+## C2: Consequences of violating regression assumptions.
+In exercise B2, we demonstrated that regressing child height on age in months did not satisfy several of the linear regression assumptions. In this exercise, we will use simulation to explore the consequences of this for our statistical inference.
+
+
+Similarly to exercise C1 above, this exercise will use the nhanes_child dataset as a ‘true’ population from which to simulate smaller samples and study the properties of statistical inference for linear regression coefficient estimates. Consider the regression parameter estimates using the full dataset in exercise B2 (b). as true population values for β0 and β1.
+
+Do the following steps:
+a. Simulate smaller datasets by sampling rows from the nhanes_child dataset. Sample a large number of datasets with replacement of size 10, 25, 50, 100, and 500. Since both the outcome height and covariate AgeMonths are needed, entire rows must be resampled rather than simply resampling values from a vector. Instead of using the function sample(), use sample.int() to randomly sample rows to retain, and then subset the data frame to only these rows. Example code for generating one simulated dataset:
+
+maxrow <- nrow(nhanes_child)
+n <- <sample size>
+df <- nhanes_child[sample.int(maxrow, n, replace = TRUE), ]
+
+```{r}
+maxrow <- nrow(nhanes_child)
+
+size10_df <- nhanes_child[sample.int(maxrow, 10, replace = TRUE), ]
+size25_df <- nhanes_child[sample.int(maxrow, 25, replace = TRUE), ]
+size50_df <- nhanes_child[sample.int(maxrow, 50, replace = TRUE), ]
+size100_df <- nhanes_child[sample.int(maxrow, 100, replace = TRUE), ]
+size500_df <- nhanes_child[sample.int(maxrow, 500, replace = TRUE), ]
+```
+
+```{r}
+size10_df
+```
+
+b. For each simulated dataset, fit a linear regression model for the height outcome constructed in exercise B2(b) and AgeMonths as the linear predictor (the same regression model estimated in B2(b)). Extract the βˆ1 coefficient estimate for the slope associated with age. For each sample size, plot a histogram of the distribution of βˆ1 estimates and compare them to the true best population value (the coefficient estimated in exercise B2 (b). What do you observe about the distribution of βˆ1.
+```{r}
+# prepare df
+size_df <- data.frame(sizes = c(10, 25, 50, 100, 500),
+                      beta1_estimate = 0)
+
+# for size 10
+  # reconstruct the singleheight
+  size10_df$singleheight <- ifelse(size10_df$AgeMonths < 24, 
+                                      size10_df$Length, 
+                                      size10_df$Height)
+  # fit model
+  size10_fit <- lm(formula = singleheight ~ AgeMonths,
+                   data = size10_df)
+  # get beta 1 estimate
+  size_df[1,2] <- size10_fit$coefficients[2]
+# for size 25
+  # reconstruct the singleheight
+size25_df$singleheight <- ifelse(size25_df$AgeMonths < 24, 
+                                    size25_df$Length,
+                                 size25_df$Height)
+  # fit model
+  size25_fit <- lm(formula = singleheight ~ AgeMonths,
+                   data = size25_df)
+  # get beta 1 estimate
+  size_df[2,2] <- size25_fit$coefficients[2]
+# for size 50
+  # reconstruct the singleheight
+size50_df$singleheight <- ifelse(size50_df$AgeMonths < 24, 
+                                    size50_df$Length, 
+                                    size50_df$Height)
+  # fit model
+  size50_fit <- lm(formula = singleheight ~ AgeMonths,
+                   data = size50_df)
+  # get beta 1 estimate
+  size_df[3,2] <- size50_fit$coefficients[2]
+ # for size 100
+  # reconstruct the singleheight 
+size100_df$singleheight <- ifelse(size100_df$AgeMonths < 24, 
+                                    size100_df$Length, 
+                                    size100_df$Height)
+  # fit model
+  size100_fit <- lm(formula = singleheight ~ AgeMonths,
+                   data = size100_df)
+  # get beta 1 estimate
+  size_df[4,2] <- size100_fit$coefficients[2]
+ # for size 500
+  # reconstruct the singleheight 
+size500_df$singleheight <- ifelse(size500_df$AgeMonths < 24, 
+                                    size500_df$Length, 
+                                    size500_df$Height)
+  # fit model
+  size500_fit <- lm(formula = singleheight ~ AgeMonths,
+                   data = size500_df)
+  # get beta 1 estimate
+  size_df[5,2] <- size500_fit$coefficients[2]
+
+# plot histogram
+hist(x = size_df$sizes,
+     y = size_df$beta1_estimate)
+```
+
+
+c. For the regression model fitted to each simulated dataset, extract the 95% confidence interval using the confint() function. For each simulated sample size, calculate the proportion of 95% confidence intervals that contain the true value of β1. How does this change with sample size relative to the nominal 95% coverage target?
+```{r}
+confint(size10_fit)
+confint(size25_fit)
+confint(size50_fit)
+confint(size100_fit)
+confint(size500_fit)
+```
+

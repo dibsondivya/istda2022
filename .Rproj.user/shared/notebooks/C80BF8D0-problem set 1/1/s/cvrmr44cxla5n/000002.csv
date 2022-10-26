@@ -1,0 +1,7 @@
+"0","```r
+qnorm(p = 0.25,
+      mean = mean(na.omit(nhanes20pl$BMI)),
+      sd = sd(na.omit(nhanes20pl$BMI))
+      )
+# 24.28109
+```"

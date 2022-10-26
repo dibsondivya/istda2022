@@ -1,0 +1,7 @@
+"0","```r
+# pnorm gives P(X <= x)
+1 - pnorm(100, 
+          mean(na.omit(nhanes20pl$AlcoholYear)), 
+          sd(na.omit(nhanes20pl$AlcoholYear)))
+# 0.4072271
+```"

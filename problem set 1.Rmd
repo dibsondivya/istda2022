@@ -1,0 +1,669 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+install.packages("patchwork")
+library(patchwork)
+```
+
+
+# Part B
+## B1
+a. What type of variable is each variable in the dataset?
+```{r}
+data <- read.csv("perulung_ems.csv")
+head(data)
+str(data)
+
+# id is integer
+# fev1 is numeric; decimals
+# age is numeric; decimals
+# height is numeric
+# sex is integers; binary 0/1
+# respsymptoms is integer; binary 0/1
+```
+
+b. What shape is the frequency distribution of each of the variables?
+```{r}
+data %>% 
+     map2(.,.y = colnames(.), ~ ggplot(data, aes(x = .x)) + 
+               geom_histogram() +
+               xlab(.y)
+     ) %>% 
+     wrap_plots()
+
+# id has a uniform distribution shape
+# fev1 has a unimodal shape; normal
+# age has a bimodal shape
+# height has a unimodal shape; normal
+# sex has a pretty even distribution
+# respsymptoms has a skewed shape, leaning towards 0
+```
+
+c. What are some research questions which these data could have been collected to address?
+```{r}
+#1. Does height impact one's respiratory symptoms?
+#2. Does age impact one's respiratory symptoms?
+#3. Does forced expiratory volume in 1 second act as a good predictor for presence of respiratory symptoms?
+```
+
+
+d. Use R to create appropriate univariate graphical summaries of each of the variables.
+```{r}
+# graphical summary options: pie charts, bar charts, histograms, and boxplots
+
+# id is integer
+# fev1 is numeric; decimals; go with histogram
+# age is numeric; decimals; go with histogram
+# height is numeric; go with histogram
+# sex is integers; binary 0/1; bar chart
+# respsymptoms is integer; binary 0/1; bar chart
+
+## Prof's Logic
+# categorical variable: only frequency plot
+# continuous numeric: histogram or density plot. for summary measure: if its highly skewed or outliers present, histograms are best. Box plot can be quite precise if you want to show range and median
+
+# if want to show probability as y axis, use hist(x = , freq = TRUE)
+hist(data$fev1)
+hist(data$age)
+hist(data$height)
+ggplot(data = data,
+       mapping = aes(x = sex)) +
+  geom_bar() 
+ggplot(data = data,
+       mapping = aes(x = respsymptoms)) +
+  geom_bar() 
+```
+
+e. Create a single table summarizing key characteristics of the sample—an appropriate ‘Table 1’ for a medical or epidemiologic paper. (It is probably possible to construct a full table with R commands, but you might find it easier to do calculations of summary statistics with R and copy the R output into a separate table in MS Word, Excel, or similar.)
+```{r}
+summary(data)
+```
+
+
+f. In this sample of 636 children, does there appear to be an association between:
+(i) sex and height,
+```{r f parti}
+plot(x = data$sex,
+     y = data$height)
+cor(data$sex, data$height, method = c("pearson"))
+# correlation coefficient of 0.006846386
+  # no association
+```
+
+(ii) age and height,
+```{r}
+plot(x = data$age,
+     y = data$height)
+cor(data$age, data$height, method = c("pearson"))
+# correlation coefficient of 0.5946015
+  # weak positive r/s
+```
+(iii) sex and lung function
+```{r}
+plot(x = data$sex,
+     y = data$fev1)
+cor(data$sex, data$fev1, method = c("pearson"))
+# correlation coefficient of 0.1951235
+  # very weak positive association
+```
+
+(iv) sex and presence of respiratory symptoms,
+```{r}
+plot(x = data$sex,
+     y = data$respsymptoms)
+cor(data$sex, data$respsymptoms, method = c("pearson"))
+# correlation coefficient of -0.0347108
+  # very very weak negative r/s, almost no association
+```
+
+(v) respiratory symptoms and lung function.
+```{r}
+plot(x = data$fev1,
+     y = data$respsymptoms)
+cor(data$fev1, data$respsymptoms, method = c("pearson"))
+# correlation coefficient of -0.2062911
+  # very weak negative r/s
+```
+
+Support your answers with graphical or numerical evidence.
+
+g. What is the target population to which your conclusions about these questions might generalize?
+```{r}
+# Generalised towards 7-10 year olds without respiratory symptoms.
+
+## Prof's Logic: children from deprived areas in urban Latin America.
+```
+
+h. Calculate an estimate and 95% confidence interval for each of the following quantities:
+(i) Height in the whole population.
+```{r h parti}
+height_estimate <- mean(data$height)
+height_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error where 1.96 is found via qnorm(0.975) and normal dist is used
+  #  qnorm(0.975)
+  # since 95% interval, the % are 2.5% and 97.5%. thus, 0.975 is used
+height_se <- sd(data$height)/sqrt(length(data$height))
+height_lowerlimit <- height_estimate - 1.96*height_se
+height_lowerlimit
+height_upperlimit <- height_estimate + 1.96*height_se
+height_upperlimit
+
+## Prof's Logic: small sample 95% CI: uses mean ± qt(0.975, df = df)*root(var/n) for the t distribution
+  # qt(0.975, df = df)
+
+
+## Prof's Logic: double check with t.test where t.test(data$height) and uses t distribution
+  # gives t stat, df, pvalue, and 95% CI and mean of x
+  # wont be using t.test for normal distribution but instead z.test function that is part of BSDA package
+```
+
+(ii) FEV1 in the population.
+```{r}
+fev1_estimate <- mean(data$fev1)
+fev1_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+fev1_se <- sd(data$fev1)/sqrt(length(data$fev1))
+fev1_lowerlimit <- fev1_estimate - 1.96*fev1_se
+fev1_lowerlimit
+fev1_upperlimit <- fev1_estimate + 1.96*fev1_se
+fev1_upperlimit
+```
+
+(iii) Height for male and females children separately.
+
+```{r}
+# split datq
+maledata <- subset(x = data,
+       subset = sex == 1)
+femaledata <- subset(x = data,
+       subset = sex == 0)
+
+## male children
+height_male_estimate <- mean(maledata$height)
+height_male_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+height_male_se <- sd(maledata$height)/sqrt(length(maledata$height))
+height_male_lowerlimit <- height_male_estimate - 1.96*height_male_se
+height_male_lowerlimit
+height_male_upperlimit <- height_male_estimate + 1.96*height_male_se
+height_male_upperlimit
+
+## female children
+height_female_estimate <- mean(femaledata$height)
+height_female_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+height_female_se <- sd(femaledata$height)/sqrt(length(femaledata$height))
+height_female_lowerlimit <- height_female_estimate - 1.96*height_female_se
+height_female_lowerlimit
+height_female_upperlimit <- height_female_estimate + 1.96*height_female_se
+height_female_upperlimit
+```
+
+(iv) FEV1 for children with respiratory symptoms and those without respiratory symptoms.
+```{r}
+# split datq
+norespdata <- subset(x = data,
+       subset = respsymptoms == 0)
+respdata <- subset(x = data,
+       subset = respsymptoms == 1)
+
+## noresp children
+fev1_noresp_estimate <- mean(norespdata$fev1)
+fev1_noresp_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+fev1_noresp_se <- sd(norespdata$fev1)/sqrt(length(norespdata$fev1))
+fev1_noresp_lowerlimit <- fev1_noresp_estimate - 1.96*fev1_noresp_se
+fev1_noresp_lowerlimit
+fev1_noresp_upperlimit <- fev1_noresp_estimate + 1.96*fev1_noresp_se
+fev1_noresp_upperlimit
+
+## resp children
+fev1_resp_estimate <- mean(respdata$fev1)
+fev1_resp_estimate
+# Large-sample 95% CI: mean ± 1.96 root(var/n) where root(var/n) is standard error
+fev1_resp_se <- sd(respdata$fev1)/sqrt(length(respdata$fev1))
+fev1_resp_lowerlimit <- fev1_resp_estimate - 1.96*fev1_resp_se
+fev1_resp_lowerlimit
+fev1_resp_upperlimit <- fev1_resp_estimate + 1.96*fev1_resp_se
+fev1_resp_upperlimit
+
+```
+
+For each of these outcomes calculate the large sample CI using the normal distribution and the small-sample CI using the t-distribution. Compare your calculations to the 95% CI estimate output by the t.test() function.
+
+i. For each of the following research questions:
+• articulate an appropriate null and alternative hypothesis,
+• calculate an appropriate estimate and uncertainty range,
+• determine an appropriate statistical test for your hypothesis, and
+• report the results of your hypothesis test to answer the question.
+(i) Is the average height of children aged 7 to 10 years in Lima greater than 124cm?
+```{r}
+# H0: average height of children aged 7-10 years <= 124cm.
+# H1: average height of children aged 7-10 years > 124cm.
+# perform a t test
+xbar <- mean(data$height)
+xbar
+n <- length(data$height)
+sd <- sd(data$height)
+sd
+
+t_stat <- (xbar - 124)/(sd / sqrt(n))
+t_stat
+
+t.test(data$height, 
+       alternative = "greater", 
+       mu = 124)
+
+# A small p-value (typically ≤ 0.05) indicates strong evidence against the null hypothesis, so you reject it.
+#A large p-value (> 0.05) indicates weak evidence against the null hypothesis, so you fail to reject it.
+
+# pvalue is p-value = 0.4152, fail to reject H0 that average height is less than equal to 124cm.
+```
+
+(ii) Is the average height of girls in Lima equal to 123.5cm?
+```{r}
+partii_data <- subset(data,
+                      subset = sex == 0)
+
+# H0: average height of girls in Lima =/= 123.5cm
+# H1: average height of girls in Lima = 123.5cm
+# perform a t test
+xbar <- mean(partii_data$height)
+xbar
+n <- length(partii_data$height)
+sd <- sd(partii_data$height)
+sd
+
+t_stat <- (xbar - 123.5)/(sd / sqrt(n))
+t_stat
+
+t.test(partii_data$height, 
+       mu = 123.5)
+
+# A small p-value (typically ≤ 0.05) indicates strong evidence against the null hypothesis, so you reject it.
+#A large p-value (> 0.05) indicates weak evidence against the null hypothesis, so you fail to reject it.
+
+# pvalue is p-value = 0.147, fail to reject H0 that average height is average height of girls in Lima =/= 123.5cm
+
+2*pnorm(t_stat, mean = 0, sd = 1, lower.tail = FALSE)
+```
+
+(iii) Is there an association between sex and height among children in Lima?
+```{r}
+# H0: there is no association between sex and height among children in Lima
+# H1: there is an association between sex and height among children in Lima
+
+# use a paired t test
+diff <- data$sex - data$height
+xbar_diff <- mean(diff)  # equivalent: xbar1 - xbar0
+se_diff <- sd(diff) / sqrt(nrow(data))
+
+t.test(data$sex, data$height, paired = TRUE)
+# p-value < 2.2e-16
+# strong evidence to reject null hypothesis of no association
+```
+
+(iv) Do children with respiratory symptoms have reduced pulmonary function compared to children with no respiratory symptoms?
+```{r}
+# H0: pulmonary function of children with resp symptoms >= children with no resp symptons
+# H1: pulmonary function of children with resp symptoms < children with no resp symptons
+
+# use two sample t.test
+
+t.test(respdata$fev1, norespdata$fev1, var.equal=TRUE)
+# p value is 1.531e-07
+# strong evidence to reject null hypothesis of pulmonary function of children with resp symptoms >= children with no resp symptons
+```
+
+
+j. If the null hypothesis were true for all of the above 4 questions, what is the probability of erroneously rejecting at least one null hypothesis and incorrectly concluding an association exists?
+```{r}
+# type 1 error is when the researcher rejects a null hypothesis when it is true. 
+
+# if null H0 is true for all questions, pvalue is large for all.
+
+# probability of pval = 
+```
+
+## B2
+
+a. Open and explore the NHANES dataset in R through the following steps:
+• Install the NHANES R package: install.packages("NHANES")
+• Load the R package: library(NHANES)
+• Load the NHANES dataset into your workspace: data(NHANES)
+```{r}
+#install.packages("NHANES")
+library(NHANES)
+data(NHANES)
+head(NHANES)
+```
+
+– Use the command ? to access the help page for the dataset: ?NHANES Review the dataset documentation, particularly looking
+(i) What was the purpose for collecting the data?
+```{r}
+# Oversampled certain subpopulations like racial minorities so that weighting is adjusted.
+
+## Prof's Logic: The data were collected to monitor the health and nutrition of children and adults in the United States.
+```
+
+(ii) When and how were the data in the dataset collected?
+```{r}
+# Sample years from 2009-2010 and 2011-2012. 
+# Dataset is collected through individuals being interviewed in their homes every year and complete the health examination component of the survey. The health examination is conducted in a mobile examination centre (MEC).
+```
+
+(iii) What is the target population of the sample?
+```{r}
+# The NHANES target population is "the non-institutionalized civilian resident population of the United States". 
+```
+
+(iv) What is the sample size? Who was eligible to be included in the dataset? Are there different eligibility or inclusion criteria for certain variables?
+```{r}
+# raw sample size is 20,293 but adjusted is 10,000
+# Those who have homes and that complete the health examiniation and interview
+```
+
+(v) What are the areas of information available in the dataset?
+```{r}
+# Study variables
+# Demographic variables
+# Physical measurements
+# Health variables
+# Lifestyle variabes
+```
+
+In the documentation, note that several of the variables are only collected for respondents of a certain age range or in one of the survey rounds but not the other. This is important to take note because it may affect what questions can be addressed by the data, or result in errant conclusions and incorrect interpretation if eligibility and inclusion criteria are not appropriately considered during analysis. 
+
+For the remainder of the tutorial, we will only consider the subset of the sample who are adults aged 20 years and older.
+Construct this dataset with the R command: nhanes20pl <- NHANES[NHANES$Age >= 20, ]
+```{r}
+nhanes20pl <- NHANES[NHANES$Age >= 20, ]
+```
+
+(vi) Confirm that your new dataset has 7235 respondents remaining. Use at least one different R command to achieve construction of the same subsetted dataset. Confirm that your alternate command has the same number of rows and columns.
+```{r}
+nrow(nhanes20pl)
+ncol(nhanes20pl)
+
+nhanes20pl_subset <- subset(NHANES,
+                            Age >= 20)
+# alternatives:
+  # NHANES[which(NHANES$Age >= 20), ]
+  # filter(NHANAES, Age >= 20)
+nrow(nhanes20pl_subset)
+ncol(nhanes20pl_subset)
+```
+
+b. Types of variables. Using the subsetted nhanes20pl dataset, identify at least one variable of each of the types of variables: continuous, discrete numeric, binary, categorical, and ordered categorical. For an identified variable of each type, create an appropriate summary of the frequency distribution and calculate an appropriate measure of central tendency and variation.
+```{r}
+#str(nhanes20pl)
+
+# continuous: Poverty
+# discrete numeric: HomeRooms
+# binary:SleepTrouble
+# categorical: Race1
+# ordered categorical: AgeDecade
+
+#  appropriate summary of the frequency distribution and calculate an appropriate measure of central tendency and variation.
+hist(nhanes20pl$Poverty)
+mean(na.omit(nhanes20pl$Poverty)) # 2.944494
+sd(na.omit(nhanes20pl$Poverty)) # 1.665132
+
+hist(nhanes20pl$HomeRooms)
+mean(na.omit(nhanes20pl$HomeRooms)) # 6.142201
+sd(na.omit(nhanes20pl$HomeRooms)) # 2.260319
+
+hist(as.numeric(nhanes20pl$SleepTrouble))
+mean(na.omit(as.numeric(nhanes20pl$SleepTrouble))) # 1.263994
+sd(na.omit(as.numeric(nhanes20pl$SleepTrouble))) # 0.4408268
+
+hist(as.numeric(nhanes20pl$Race1))
+mean(na.omit(as.numeric(nhanes20pl$Race1))) # 3.537249
+sd(na.omit(as.numeric(nhanes20pl$Race1))) # 1.093671
+
+hist(as.numeric(nhanes20pl$AgeDecade))
+mean(na.omit(as.numeric(nhanes20pl$AgeDecade))) # 5.123587
+sd(na.omit(as.numeric(nhanes20pl$AgeDecade))) # 1.565809
+```
+
+c. Frequency distributions. Identify at least one variable in the dataset that has a frequency distribution matching each of the shapes described in Kirkman and Sterne Figures 3.5 and 3.6 (pages 20-21). For each of the identified variables, calculated the mean, median, mode, variance, standard devation, range, and interquartile range.
+```{r}
+getmode <- function(v) {
+   uniqv <- unique(v)
+   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+```
+
+
+```{r} 
+
+# symmetrical and bell shaped: HealthGen
+hist(as.numeric(nhanes20pl$HealthGen))
+mean(na.omit(as.numeric(nhanes20pl$HealthGen))) # 2.648348
+median(na.omit(as.numeric(nhanes20pl$HealthGen))) # 3
+getmode(na.omit(as.numeric(nhanes20pl$HealthGen))) # 3
+var(na.omit(as.numeric(nhanes20pl$HealthGen))) # 0.9076636
+sd(na.omit(as.numeric(nhanes20pl$HealthGen))) # 0.9527138
+range(na.omit(as.numeric(nhanes20pl$HealthGen))) # 1 5
+IQR(na.omit(as.numeric(nhanes20pl$HealthGen))) # 1
+
+# positively skewed to right: HomeRooms
+hist(nhanes20pl$HomeRooms)
+mean(na.omit(nhanes20pl$HomeRooms)) # 6.142201
+median(na.omit(nhanes20pl$HomeRooms)) # 6
+getmode(na.omit(nhanes20pl$HomeRooms)) # 6
+var(na.omit(nhanes20pl$HomeRooms)) # 5.109042
+sd(na.omit(nhanes20pl$HomeRooms)) # 2.260319
+range(na.omit(nhanes20pl$HomeRooms)) # 1 13
+IQR(na.omit(nhanes20pl$HomeRooms)) # 3
+
+# negatively skewed to left:Education
+hist(as.numeric(nhanes20pl$Education))
+mean(na.omit(as.numeric(nhanes20pl$Education))) # 3.64714
+median(na.omit(as.numeric(nhanes20pl$Education))) # 4
+getmode(na.omit(as.numeric(nhanes20pl$Education))) # 4
+var(na.omit(as.numeric(nhanes20pl$Education))) # 1.43032
+sd(na.omit(as.numeric(nhanes20pl$Education))) # 1.19596
+range(na.omit(as.numeric(nhanes20pl$Education))) # 1 5
+IQR(na.omit(as.numeric(nhanes20pl$Education))) # 2
+
+# Prof's Logic:: bimodal: testosterone
+# Prof's Logic: term 'uniform distribution' suggests that there is an ordering of the variables involved; thus gender cannot be used here
+```
+
+## B3. 
+Statistical modelling: using the normal distribution to estimate population distributions. The purpose of this exercise is to practice applying the normal distribution to estimate the distribution of an outcome in a population using data from a sample drawn from the population. The version of the NHANES dataset we are using is constructed to approximate a simple random sample from the American population. Thus we can use the observations in our sample to make inference about the American population. 
+
+For each of the questions below, consider three continuous variables:
+• Height: Standing height in centimeters.
+• BMI: Body Mass Index
+• AlcoholYear: Number of days over the past year that participant drank alcoholic beverages.
+
+a. Create a graph of the frequency distribution for each of the variables, either using histograms or density plots. Does each outcome appear consistent with arising from a normal distribution?
+```{r}
+hist(nhanes20pl$Height) # yes, seems normal
+hist(nhanes20pl$BMI) # skewed normal?
+hist(nhanes20pl$AlcoholYear) # not normal, inverse j shaped ## Prof's Logic: severe positive skew
+```
+
+b. Calculate and report the sample mean and standard deviation for each of the outcomes.
+```{r}
+# use na.omit or na.rm = TRUE
+
+mean(na.omit(nhanes20pl$Height)) # 168.7878
+mean(na.omit(nhanes20pl$BMI)) # 28.76804
+mean(na.omit(nhanes20pl$AlcoholYear)) # 75.69705
+
+sd(na.omit(nhanes20pl$Height)) # 10.08871
+sd(na.omit(nhanes20pl$BMI)) # 6.652364
+sd(na.omit(nhanes20pl$AlcoholYear)) # 103.5562
+```
+
+c. Use the normal distribution as a model to estimate the following:
+(i) The proportion of adults who are above 165cm tall.
+```{r}
+# pnorm gives P(X <= x)
+1 - pnorm(165, mean(na.omit(nhanes20pl$Height)), sd(na.omit(nhanes20pl$Height)))
+# 0.6463375
+```
+
+(ii) The proportion of adults between 153cm and 160cm tall.
+```{r}
+# pnorm gives P(X <= x)
+pnorm(160, mean(na.omit(nhanes20pl$Height)), sd(na.omit(nhanes20pl$Height))) - pnorm(153, mean(na.omit(nhanes20pl$Height)), sd(na.omit(nhanes20pl$Height)))
+
+# 0.1330589
+```
+
+(iii) The height of a door in order that 90% of adults can walk under without ducking.
+```{r}
+qnorm(p = 0.9, 
+      mean = mean(na.omit(nhanes20pl$Height)),
+      sd = sd(na.omit(nhanes20pl$Height))
+)
+
+# 181.717cm
+```
+
+(iv) The proportion of adults who are obese, defined as BMI above 30.
+```{r}
+# pnorm gives P(X <= x)
+1 - pnorm(30, 
+          mean(na.omit(nhanes20pl$BMI)), 
+          sd(na.omit(nhanes20pl$BMI)))
+
+# 0.4265396
+```
+
+(v) The proportion of adults who are overweight, defined as BMI between 25 and 30.
+```{r}
+pnorm(30, 
+          mean(na.omit(nhanes20pl$BMI)), 
+          sd(na.omit(nhanes20pl$BMI))) - pnorm(25, 
+          mean(na.omit(nhanes20pl$BMI)), 
+          sd(na.omit(nhanes20pl$BMI)))
+
+# 0.2879067
+```
+
+(vi) The BMI threshold at which 25% of adults are below.
+```{r}
+qnorm(p = 0.25,
+      mean = mean(na.omit(nhanes20pl$BMI)),
+      sd = sd(na.omit(nhanes20pl$BMI))
+      )
+# 24.28109
+```
+
+(vii) The proportion adults who drink alcohol on more than 100 days per year.
+```{r}
+# pnorm gives P(X <= x)
+1 - pnorm(100, 
+          mean(na.omit(nhanes20pl$AlcoholYear)), 
+          sd(na.omit(nhanes20pl$AlcoholYear)))
+# 0.4072271
+```
+
+(viii) The proportion of adults who drink alcohol on fewer than 10 days per year.
+```{r}
+pnorm(10, 
+          mean(na.omit(nhanes20pl$AlcoholYear)), 
+          sd(na.omit(nhanes20pl$AlcoholYear)))
+# 0.2629067
+```
+
+(ix) The interquartile range for the number of days per year that American adults drink alcohol. Hint: use the R functions pnorm(...) and qnorm(...).
+```{r}
+qnorm(p = 0.25,
+      mean = mean(na.omit(nhanes20pl$AlcoholYear)),
+      sd = sd(na.omit(nhanes20pl$AlcoholYear))
+      )
+
+qnorm(p = 0.75,
+      mean = mean(na.omit(nhanes20pl$AlcoholYear)),
+      sd = sd(na.omit(nhanes20pl$AlcoholYear))
+      )
+
+145.5446 - 5.849485 # 139.6951
+```
+
+d. Check your estimates based on the normal distribution by directly calculating each of the above proportions among the observed sample. Based on this comparison, do you think that the normal distribution is a good model for the population distribution of each outcome in the population?
+```{r}
+nrow(nhanes20pl[nhanes20pl$Height>165,]) / nrow(nhanes20pl) # 0.6294402
+# good model
+
+nrow(nhanes20pl[nhanes20pl$BMI>30,]) / nrow(nhanes20pl) # 0.3642018
+nrow(nhanes20pl[nhanes20pl$BMI>25 & nhanes20pl$BMI<30,]) / nrow(nhanes20pl) # 0.3339323
+# slightly off
+
+nrow(nhanes20pl[nhanes20pl$AlcoholYear>100,]) / nrow(nhanes20pl) # 0.4427091
+nrow(nhanes20pl[nhanes20pl$AlcoholYear<10,]) / nrow(nhanes20pl) # 0.4768487
+IQR(na.omit(nhanes20pl$AlcoholYear)) # 101
+# normal distribution is not a good model for alcohol year
+```
+
+# Part C
+## C1
+Missing data. Using the nhanes20pl dataset, review the amount of missing data for each of the variables pertaining to Demographic Variables and Physical Measurements (Hint: the R function ‘is.na’ may be useful). 
+
+(i) Amongst each grouping (Demographic Variables and Physical Measurements) identify the one variable with the highest proportion of missing cases. (Do not consider variables that were available for only one of the survey rounds or not recorded for this age range when making your assessment.) 
+
+
+```{r}
+# Demographic Variables
+sum(is.na(nhanes20pl$Gender))
+sum(is.na(nhanes20pl$Age))
+sum(is.na(nhanes20pl$AgeDecade))
+sum(is.na(nhanes20pl$AgeMonths)) # 3743; the most
+sum(is.na(nhanes20pl$Race1))
+sum(is.na(nhanes20pl$Race3)) # 3648
+sum(is.na(nhanes20pl$Education))
+sum(is.na(nhanes20pl$MaritalStatus))
+sum(is.na(nhanes20pl$HHIncome)) # 603
+sum(is.na(nhanes20pl$HHIncomeMid)) # 603
+sum(is.na(nhanes20pl$Poverty))
+sum(is.na(nhanes20pl$HomeRooms))
+sum(is.na(nhanes20pl$HomeOwn))
+
+proportion <- 2743/nrow(nhanes20pl)
+proportion # 0.3791292
+```
+
+
+```{r}
+# Physical Measurements
+sum(is.na(nhanes20pl$Weight))
+sum(is.na(nhanes20pl$Length)) # 7235
+sum(is.na(nhanes20pl$HeadCirc)) # 7235
+sum(is.na(nhanes20pl$Height))
+sum(is.na(nhanes20pl$BMI))
+sum(is.na(nhanes20pl$BMICatUnder20yrs)) # 7235
+sum(is.na(nhanes20pl$BMI_WHO))
+sum(is.na(nhanes20pl$Pulse))
+sum(is.na(nhanes20pl$BPSysAve))
+sum(is.na(nhanes20pl$BPDiaAve))
+sum(is.na(nhanes20pl$BPSys1)) # 519
+sum(is.na(nhanes20pl$BPDia1)) # 519
+sum(is.na(nhanes20pl$BPSys2)) 
+sum(is.na(nhanes20pl$BPDia2))
+sum(is.na(nhanes20pl$BPSys3))
+sum(is.na(nhanes20pl$BPDia3))
+sum(is.na(nhanes20pl$Testosterone))
+
+# proportion is 100%
+```
+
+(ii) For each of these two variables, in this sample, is there any relationship between Gender or Race1 and the probability that data on the outcome is missing?
+```{r}
+plot(nhanes20pl$Gender, as.numeric(is.na(nhanes20pl$AgeMonths))) # relatively equal across both genders
+plot(nhanes20pl$Race1, as.numeric(is.na(nhanes20pl$AgeMonths))) # no age months for hispanic, white and others
+
+plot(nhanes20pl$Gender, as.numeric(is.na(nhanes20pl$Length))) # completely no recording
+plot(nhanes20pl$Race1, as.numeric(is.na(nhanes20pl$Length))) # completely no recording
+```
+
