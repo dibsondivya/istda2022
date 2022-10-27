@@ -39,21 +39,17 @@ prop.table(table(NHANES$SexOrientation))
 prop.table(table(NHANES$Poverty))
 ```
 
-```{r}
+## Plots for Visualisation
+```{r Age, PhysActive}
 library(ggplot2)
 ggplot(NHANES,
        aes(x = Age,
            y = BPSysAve,
            color = PhysActive)) +
   geom_point()
-
-# age, gender, outcomes, exposure variables
-# population demographics: urban? working? locations?
-  # age (continuous): median, IQR
-  # percentage for categories
 ```
 
-```{r}
+```{r Poverty, Age}
 ggplot(NHANES,
        aes(x = Poverty,
            y = BPSysAve,
@@ -61,7 +57,7 @@ ggplot(NHANES,
   geom_point()
 ```
 
-```{r}
+```{r PhysActive, Gender}
 ggplot(NHANES,
        aes(x = PhysActive,
            y = BPSysAve,
@@ -69,7 +65,7 @@ ggplot(NHANES,
   geom_point(size = 0.5)
 ```
 
-```{r}
+```{r Pregnant only}
 #table(NHANES$PregnantNow)
 NHANESPregnant <- subset(NHANES,
        PregnantNow == 'Yes')
@@ -78,15 +74,15 @@ ggplot(NHANESPregnant,
            y = BPSysAve)) +
   geom_point()
 ```
-
+# START
 ## Inclusion and Exclusion Criteria
 ```{r Inclusion and Exclusion}
 # Adjust for inclusion and exclusion criteria
 NHANES_Inclusion <- subset(subset(NHANES,subset = Age >= 18), PregnantNow!='Yes' | is.na(PregnantNow)==TRUE)
 NHANES_Inclusion
 ```
-## Aim 1: Two Sample T-test
 
+## Aim 1: Two Sample T-test
 ```{r Poverty using 1}
 NHANES_Poor <- subset(NHANES_Inclusion,
                       subset = Poverty < 1)
@@ -102,6 +98,13 @@ var(na.omit(NHANES_NotPoor$BPSysAve)) # 284.7876
 
 t.test(NHANES_Poor$BPSysAve, # var considered not equal
        NHANES_NotPoor$BPSysAve)
+
+# included plot
+ggplot(data = NHANES_Inclusion,
+       mapping = aes(x = Poverty,
+                     y = BPSysAve,
+                     color = Poverty<1)) +
+  geom_point()
 ```
 
 
@@ -120,21 +123,26 @@ var(na.omit(NHANES_NotPoor$BPSysAve)) # 284.7876
 
 t.test(NHANES_Poor$BPSysAve, # var considered not equal
        NHANES_NotPoor$BPSysAve)
+
+# included plot
+ggplot(data = NHANES_Inclusion,
+       mapping = aes(x = Poverty,
+                     y = BPSysAve,
+                     color = Poverty<2)) +
+  geom_point()
 ```
 ```{r Row Count}
 2567+4282
 ```
 
 ## Aim 2: Physical Activity on Blood Pressure
-### Apply inclusion and exclusion criteria
-```{r}
+```{r Inclusion and Exclusion}
 NHANES_Aim2 <- subset(NHANES_Inclusion, 
                       subset = Age<=75)
 nrow(NHANES_Aim2)
 ```
 
 ### Graphics of possible covariates
-
 ```{r Age}
 ggplot(NHANES_Aim2,
        aes(x = Age,
@@ -160,6 +168,7 @@ ggplot(NHANES_Aim2,
            color = PhysActive)) +
   geom_point()
 ```
+
 ```{r Race1}
 ggplot(NHANES_Aim2,
        aes(x = PhysActive,
@@ -169,7 +178,7 @@ ggplot(NHANES_Aim2,
   facet_grid(cols = vars(Race1))
 ```
 
-```{r}
+```{r Race1 bar plot}
 ggplot(NHANES_Inclusion,
        aes(x = Race1,
            fill = PhysActive)) +
@@ -177,7 +186,7 @@ ggplot(NHANES_Inclusion,
 ```
 
 
-```{r}
+```{r Education Facet}
 ggplot(NHANES_Aim2,
        aes(x = PhysActive,
            y = BPSysAve)) +
@@ -185,21 +194,16 @@ ggplot(NHANES_Aim2,
   geom_boxplot() +
   facet_grid(cols = vars(Education))
 ```
+Chosen covariates: Age, Gender, Education, Race1, BMI, Depression, TVHrsDay
 
-### covariates: Age, Gender, Education, Race1, BMI, Depression, TVHrsDay
-```{r}
-fit2a <- lm(BPSysAve ~ PhysActive*Age, 
-          data = NHANES_Aim2)
-summary(fit2a)
-```
-
-```{r}
+### Model Fitting
+```{r fit without covariates}
 fit2 <- lm(BPSysAve ~ PhysActive, 
           data = NHANES_Aim2)
 summary(fit2)
 ```
 
-```{r model fitting} 
+```{r model fitting with covariates w/o interaction} 
 fit <- lm(BPSysAve ~ PhysActive+Age+Gender+Education+Race1+BMI+Depressed+TVHrsDay, 
           data = NHANES_Aim2)
 summary(fit)
@@ -208,54 +212,103 @@ summary(fit)
 confint(fit)
 ```
 
-```{r}
+```{r remove tvhrsperday}
 fit3 <- lm(BPSysAve ~ PhysActive+Age+Gender+Education+Race1+BMI+Depressed, 
           data = NHANES_Aim2)
 summary(fit3)
 ```
 
-```{r}
+```{r remove depressed}
 fit4 <- lm(BPSysAve ~ PhysActive+Age+Gender+Education+Race1+BMI, 
           data = NHANES_Aim2)
 summary(fit4)
 ```
 
-```{r}
+```{r remove education}
 fit5 <- lm(BPSysAve ~ PhysActive+Age+Gender+Race1+BMI, 
           data = NHANES_Aim2)
 summary(fit5)
 ```
 
+```{r remove physactive}
+fit5a <- lm(BPSysAve ~ Age+Gender+Race1+BMI, 
+          data = NHANES_Aim2)
+summary(fit5a) # performs exactly the same as with physactive
+```
 
-```{r}
+```{r with interaction}
 fit6 <- lm(BPSysAve ~ PhysActive*Age*Gender*Race1*BMI, 
           data = NHANES_Aim2)
 summary(fit6)
 ```
 
-```{r Assumptions}
-plot(fit2, 2)
-plot(fit, 2)
-plot(fit5, 2)
-```
-
-
-# consider a transformation but not ultimate priority right now
-
-```{r}
-fit8 <- lm(log(BPSysAve) ~ PhysActive, 
+```{r interaction without physactive}
+fit6a <- lm(BPSysAve ~ Age*Gender*Race1*BMI, 
           data = NHANES_Aim2)
-summary(fit8)
+summary(fit6a) # performs worse than with physactive when looking at interaction
 ```
 
 
-```{r}
-fit7 <- glm(BPSysAve ~ PhysActive*Age*Gender*Race1*BMI, 
+```{r second best: log transform}
+fit8 <- lm(log(BPSysAve) ~ PhysActive+Age+Gender+Race1+BMI, 
           data = NHANES_Aim2)
-summary(fit7)
+summary(fit8) # 0.1894
 
-# CI for estimates
-confint(fit)
+# improvement from 0.1848
+confint(fit8)
 ```
 
+```{r log transform without phys}
+fit8 <- lm(log(BPSysAve) ~ Age+Gender+Race1+BMI, 
+          data = NHANES_Aim2)
+summary(fit8) # same result as with phys
+```
+
+```{r best: log and interaction}
+fit7 <- lm(log(BPSysAve) ~ PhysActive*Age*Gender*Race1*BMI, 
+          data = NHANES_Aim2)
+summary(fit7) # 0.2299, 0.0099 better than without Physactive
+
+confint(fit7)
+```
+
+
+```{r just physactive and age}
+fit2a <- lm(BPSysAve ~ PhysActive*Age, 
+          data = NHANES_Aim2)
+summary(fit2a)
+```
+
+```{r Check Assumptions}
+# 1. check for linear relationship between x and y
+  # smoothes trend is very stable
+plot(fit2, 1) # just x and y
+plot(fit, 1) # x and y with all covariates
+plot(fit7, 1) # best perfroming model
+plot(fit8, 1) # second best perfroming model
+
+# 2. independent observations due to the way the data was collected
+
+# 3. residuals are normally distributed
+  # looks reasonably good
+plot(fit2, 2) # just x and y
+plot(fit, 2) # x and y with all covariates
+plot(fit7, 2) # best perfroming model
+plot(fit8, 2) # second best perfroming model
+
+# 4. constant variance of the results
+  # no evidence of increasing or decreawsing spread of range of fitted vals
+plot(fit2, 1) # just x and y
+plot(fit, 1) # x and y with all covariates
+plot(fit7, 1) # best perfroming model
+plot(fit8, 1) # second best perfroming model
+```
+
+## Deliverables
+* Include table of distribution of: age, gender, outcomes, exposure variables
+  * population demographics: urban? working? locations?
+  * age (continuous): median, IQR
+  * percentage for categorical variables 
+* Assumptions before testing
+* Confint of estimates
 
