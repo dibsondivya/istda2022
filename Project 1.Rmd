@@ -2,7 +2,9 @@
 title: "Project 1"
 author: "Divya Shridar"
 date: "10/17/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 # Develop an Analysis Plan
@@ -136,7 +138,7 @@ ggplot(data = NHANES_Inclusion,
 ```
 
 ## Aim 2: Physical Activity on Blood Pressure
-```{r Inclusion and Exclusion}
+```{r Inclusion and Exclusion 2}
 NHANES_Aim2 <- subset(NHANES_Inclusion, 
                       subset = Age<=75)
 nrow(NHANES_Aim2)
@@ -248,20 +250,105 @@ fit6a <- lm(BPSysAve ~ Age*Gender*Race1*BMI,
 summary(fit6a) # performs worse than with physactive when looking at interaction
 ```
 
+```{r}
+library(dplyr)
+NHANES_Aim2 <- NHANES_Aim2 %>% mutate(Race = ifelse(is.na(NHANES_Aim2$Race3), # check if NA
+                           as.character(NHANES_Aim2$Race1), # if yes
+                           as.character(NHANES_Aim2$Race3))) # if no
+NHANES_Aim2$Race <- factor(NHANES_Aim2$Race)
+table(NHANES_Aim2$Race)
+
+NHANES_Aim2$Race <- relevel(NHANES_Aim2$Race,
+        ref="White")
+
+fit8b <- lm(log(BPSysAve) ~ PhysActive+Age+Gender+Race+BMI, 
+          data = NHANES_Aim2)
+summary(fit8b) # 0.1894
+
+conf_df <- data.frame(confint(fit8b))
+colnames(conf_df) <- c('lower', 'upper')
+conf_df$y <- summary(fit8b)$coeff[,1]
+conf_df$x <- 1:10
+
+library(ggplot2)
+ggplot(conf_df[2:10,], 
+       aes(y, x)) +        # ggplot2 plot with confidence intervals
+  geom_point() +
+  geom_errorbar(aes(xmin = lower, 
+                    xmax = upper)) +
+  geom_text(label = rownames(conf_df)[2:10],
+            vjust = -1.5,
+            color = 'Blue') +
+  labs(x = "Confidence Intervals",
+       y = "")
+
+NHANES_Aim2$Race <- relevel(NHANES_Aim2$Race,
+        ref="Asian")
+
+fit8b <- lm(log(BPSysAve) ~ PhysActive+Age+Gender+Race+BMI, 
+          data = NHANES_Aim2)
+summary(fit8b) # 0.1894
+
+conf_df <- data.frame(confint(fit8b))
+colnames(conf_df) <- c('lower', 'upper')
+conf_df$y <- summary(fit8b)$coeff[,1]
+conf_df$x <- 1:10
+
+library(ggplot2)
+ggplot(conf_df[2:10,], 
+       aes(y, x)) +        # ggplot2 plot with confidence intervals
+  geom_point() +
+  geom_errorbar(aes(xmin = lower, 
+                    xmax = upper)) +
+  geom_text(label = rownames(conf_df)[2:10],
+            vjust = -1.5,
+            color = 'Blue') +
+  labs(x = "Confidence Intervals",
+       y = "")
+```
+
 
 ```{r second best: log transform}
 fit8 <- lm(log(BPSysAve) ~ PhysActive+Age+Gender+Race1+BMI, 
           data = NHANES_Aim2)
 summary(fit8) # 0.1894
-
+summary(fit8)$coeff[,1]
 # improvement from 0.1848
 confint(fit8)
 ```
 
+```{r}
+conf_df <- data.frame(confint(fit8))
+colnames(conf_df) <- c('lower', 'upper')
+conf_df$y <- summary(fit8)$coeff[,1]
+conf_df$x <- 1:9
+
+library(ggplot2)
+ggplot(conf_df[2:9,], 
+       aes(y, x)) +        # ggplot2 plot with confidence intervals
+  geom_point() +
+  geom_errorbar(aes(xmin = lower, 
+                    xmax = upper)) +
+  geom_text(label = rownames(conf_df)[2:9],
+            vjust = -1.5,
+            color = 'Blue')
+?geom_errorbar
+
+```
+
+```{r}
+install.packages("plotrix")      # Install plotrix package
+library("plotrix") 
+plotCI(x = conf_df[2:9,]$x,               # plotrix plot with confidence intervals
+       y = conf_df[2:9,]$y,
+       li = conf_df[2:9,]$lower,
+       ui = conf_df[2:9,]$upper)
+```
+
 ```{r log transform without phys}
-fit8 <- lm(log(BPSysAve) ~ Age+Gender+Race1+BMI, 
+fit8a <- lm(log(BPSysAve) ~ Age+Gender+Race1+BMI, 
           data = NHANES_Aim2)
-summary(fit8) # same result as with phys
+summary(fit8a) # same result as with phys
 ```
 
 ```{r best: log and interaction}
